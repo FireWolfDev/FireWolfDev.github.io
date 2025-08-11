@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Commande de jeu - FireLabs</title>
+<style>
+  /* --- Style global sombre et moderne --- */
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+  :root {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --accent-color: #ff5722;
+    --accent-light: #ff8a50;
+    --input-bg: #1e1e1e;
+    --input-border: #333;
+    --btn-bg: var(--accent-color);
+    --btn-hover: var(--accent-light);
+    --status-colors: {
+      en_cours: #2196f3;
+      termine: #4caf50;
+      refuse: #f44336;
+      attente: #ffc107;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  h1, h2 {
+    color: var(--accent-color);
+  }
+
+  /* Container */
+  .container {
+    max-width: 900px;
+    width: 100%;
+    background: #181818;
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 10px #000000a0;
+  }
+
+  /* Form styles */
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  textarea,
+  input[type="file"] {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-color);
+    font-size: 1rem;
+    width: 100%;
+    resize: vertical;
+  }
+
+  textarea {
+    min-height: 80px;
+  }
+
+  input[type="file"] {
+    padding: 0.25rem 0.5rem;
+  }
+
+  button {
+    background-color: var(--btn-bg);
+    color: #fff;
+    font-weight: 700;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: flex-start;
+    font-size: 1rem;
+  }
+
+  button:hover {
+    background-color: var(--btn-hover);
+  }
+
+  /* Liste publique des jeux */
+  #public-list {
+    margin-top: 1rem;
+  }
+
+  #public-list ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  #public-list li {
+    background: #222;
+    margin-bottom: 0.6rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+  }
+
+  .status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .status.en_cours { background: #2196f3; color: white; }
+  .status.termine { background: #4caf50; color: white; }
+  .status.refuse { background: #f44336; color: white; }
+  .status.attente { background: #ffc107; color: black; }
+
+  /* Panel admin */
+  #admin-panel {
+    margin-top: 3rem;
+  }
+
+  #admin-panel table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  #admin-panel th, #admin-panel td {
+    border: 1px solid #333;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+
+  #admin-panel th {
+    background: #222;
+    color: var(--accent-color);
+  }
+
+  #admin-panel td.status-cell {
+    width: 150px;
+  }
+
+  #admin-panel select {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .container {
+      padding: 1rem;
+    }
+
+    #admin-panel table, #admin-panel th, #admin-panel td {
+      font-size: 0.85rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <h1>FireLabs - Commande de jeu</h1>
+
+  <section class="container" id="order-form-section">
+    <h2>Commander un jeu</h2>
+    <form id="order-form" enctype="multipart/form-data">
+      <label for="email">Email <span style="color:#f44336">*</span></label>
+      <input type="email" id="email" name="email" required placeholder="ton.email@example.com" />
+
+      <label for="name">Nom ou Pseudo <span style="color:#f44336">*</span></label>
+      <input type="text" id="name" name="name" required placeholder="Ton pseudo ou nom" />
+
+      <label for="other-contact">Autre contact (optionnel)</label>
+      <input type="text" id="other-contact" name="otherContact" placeholder="Téléphone, Discord, etc." />
+
+      <label for="game-name">Nom du jeu <span style="color:#f44336">*</span></label>
+      <input type="text" id="game-name" name="gameName" required placeholder="Nom du jeu" />
+
+      <label for="game-desc">Description du jeu <span style="color:#f44336">*</span></label>
+      <textarea id="game-desc" name="gameDesc" required placeholder="Décris ton jeu ici..."></textarea>
+
+      <label for="game-files">Fichiers optionnels</label>
+      <input type="file" id="game-files" name="gameFiles" multiple />
+
+      <button type="submit">Valider la commande</button>
+    </form>
+  </section>
+
+  <section class="container" id="public-list">
+    <h2>Liste publique des jeux commandés</h2>
+    <ul id="games-list"></ul>
+  </section>
+
+  <section class="container" id="admin-panel">
+    <h2>Panel de contrôle (Admin)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nom du jeu</th>
+          <th>Client</th>
+          <th>Email</th>
+          <th>Description</th>
+          <th>Statut</th>
+          <th>Changer statut</th>
+        </tr>
+      </thead>
+      <tbody id="admin-table-body">
+      </tbody>
+    </table>
+  </section>
+
+<script>
+  // --- Utilitaires ---
+  const STORAGE_KEY = 'firelabs_orders';
+
+  // Charger les commandes depuis localStorage
+  function loadOrders() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  }
+
+  // Sauvegarder les commandes dans localStorage
+  function saveOrders(orders) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+  }
+
+  // Fonction qui génère un ID unique simple
+  function generateId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  // Met à jour la liste publique des jeux
+  function updatePublicList() {
+    const gamesList = document.getElementById('games-list');
+    const orders = loadOrders();
+
+    gamesList.innerHTML = '';
+    if (orders.length === 0) {
+      gamesList.innerHTML = '<li>Aucune commande pour l\'instant.</li>';
+      return;
+    }
+
+    orders.forEach(order => {
+      const li = document.createElement('li');
+      li.textContent = order.gameName;
+      const statusSpan = document.createElement('span');
+      statusSpan.className = 'status ' + order.status;
+      statusSpan.textContent = formatStatus(order.status);
+      li.appendChild(statusSpan);
+      gamesList.appendChild(li);
+    });
+  }
+
+  // Met à jour le tableau admin
+  function updateAdminTable() {
+    const tbody = document.getElementById('admin-table-body');
+    const orders = loadOrders();
+    tbody.innerHTML = '';
+
+    if (orders.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#666;">Aucune commande pour l\'instant.</td></tr>';
+      return;
+    }
+
+    orders.forEach(order => {
+      const tr = document.createElement('tr');
+
+      const tdGame = document.createElement('td');
+      tdGame.textContent = order.gameName;
+      tr.appendChild(tdGame);
+
+      const tdClient = document.createElement('td');
+      tdClient.textContent = order.name;
+      tr.appendChild(tdClient);
+
+      const tdEmail = document.createElement('td');
+      tdEmail.textContent = order.email;
+      tr.appendChild(tdEmail);
+
+      const tdDesc = document.createElement('td');
+      tdDesc.textContent = order.gameDesc.length > 40 ? order.gameDesc.slice(0, 40) + '...' : order.gameDesc;
+      tr.appendChild(tdDesc);
+
+      const tdStatus = document.createElement('td');
+      tdStatus.className = 'status-cell';
+      const statusSpan = document.createElement('span');
+      statusSpan.className = 'status ' + order.status;
+      statusSpan.textContent = formatStatus(order.status);
+      tdStatus.appendChild(statusSpan);
+      tr.appendChild(tdStatus);
+
+      const tdSelect = document.createElement('td');
+      const select = document.createElement('select');
+      ['attente', 'en_cours', 'termine', 'refuse'].forEach(status => {
+        const option = document.createElement('option');
+        option.value = status;
+        option.textContent = formatStatus(status);
+        if (status === order.status) option.selected = true;
+        select.appendChild(option);
+      });
+      select.addEventListener('change', () => {
+        order.status = select.value;
+        saveOrderById(order.id, order);
+        updateAdminTable();
+        updatePublicList();
+      });
+      tdSelect.appendChild(select);
+      tr.appendChild(tdSelect);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Enregistre/modifie une commande par son id
+  function saveOrderById(id, newData) {
+    const orders = loadOrders();
+    const index = orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      orders[index] = newData;
+      saveOrders(orders);
+    }
+  }
+
+  // Format texte lisible du statut
+  function formatStatus(status) {
+    switch(status) {
+      case 'attente': return 'En attente de validation';
+      case 'en_cours': return 'En cours';
+      case 'termine': return 'Terminé';
+      case 'refuse': return 'Refusé';
+      default: return 'Inconnu';
+    }
+  }
+
+  // Gestion soumission du formulaire
+  const form = document.getElementById('order-form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Récupération des données du formulaire
+    const formData = new FormData(form);
+
+    // Préparer la commande
+    const order = {
+      id: generateId(),
+      email: formData.get('email'),
+      name: formData.get('name'),
+      otherContact: formData.get('otherContact') || '',
+      gameName: formData.get('gameName'),
+      gameDesc: formData.get('gameDesc'),
+      status: 'attente',
+      files: []
+    };
+
+    // Gestion fichiers optionnels
+    const files = formData.getAll('gameFiles');
+    for (const f of files) {
+      if (f && f.name) {
+        order.files.push({ name: f.name, size: f.size });
+        // Attention : pas de stockage réel des fichiers en localStorage,
+        // seulement un résumé des fichiers ici pour info.
+      }
+    }
+
+    // Charger les commandes existantes, ajouter la nouvelle et sauvegarder
+    const orders = loadOrders();
+    orders.push(order);
+    saveOrders(orders);
+
+    alert('Commande ajoutée avec succès ! Statut : En attente de validation');
+
+    form.reset();
+
+    // Mettre à jour affichages
+    updatePublicList();
+    updateAdminTable();
+  });
+
+  // Initialisation affichages au chargement
+  updatePublicList();
+  updateAdminTable();
+</script>
+
+</body>
+</html>
